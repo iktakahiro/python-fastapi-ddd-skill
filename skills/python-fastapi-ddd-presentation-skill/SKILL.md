@@ -1,6 +1,10 @@
 ---
 name: python-fastapi-ddd-presentation-skill
 description: Guides the FastAPI Presentation layer in a Python DDD + Onion Architecture app (route handler structure, Pydantic request/response schemas, mapping Domain exceptions to HTTP errors, and OpenAPI error documentation), based on the dddpy reference. Use when adding/refactoring endpoints that call UseCases and convert primitives ↔ Value Objects/Entities.
+license: Apache-2.0
+metadata:
+  author: Takahiro Ikeuchi
+  version: "1.0.0"
 ---
 
 # FastAPI Presentation Layer (DDD / Onion Architecture)

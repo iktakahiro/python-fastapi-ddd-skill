@@ -1,6 +1,10 @@
 ---
 name: python-fastapi-ddd-testing-skill
 description: Guides unit testing for Python DDD + Onion Architecture apps (Domain Entities/Value Objects and UseCases) using pytest and repository mocks, based on the dddpy reference. Use when adding tests, choosing what to mock, or structuring test folders for a DDD FastAPI project.
+license: Apache-2.0
+metadata:
+  author: Takahiro Ikeuchi
+  version: "1.0.0"
 ---
 
 # Testing DDD Layers with pytest (Domain / UseCase)
