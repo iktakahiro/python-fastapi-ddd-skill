@@ -1,0 +1,5 @@
+interface:
+  display_name: "FastAPI DDD Presentation"
+  short_description: "Presentation patterns for DDD FastAPI"
+  default_prompt: "Use $python-fastapi-ddd-presentation-skill to design or refactor FastAPI handlers/schemas that call UseCases and map Domain exceptions to HTTP responses."
+
