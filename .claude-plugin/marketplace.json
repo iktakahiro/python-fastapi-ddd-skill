@@ -1,0 +1,25 @@
+{
+  "name": "python-fastapi-ddd-skills",
+  "owner": {
+    "name": "Takahiro Ikeuchi",
+    "github": "iktakahiro"
+  },
+  "metadata": {
+    "description": "FastAPI + DDD / Onion Architecture skills for Python, based on the dddpy reference implementation",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "python-fastapi-ddd",
+      "description": "Complete skill set for designing FastAPI backends using Domain-Driven Design and Onion Architecture in Python: architecture patterns, presentation layer, testing, and tooling",
+      "source": "./",
+      "strict": false,
+      "skills": [
+        "./skills/python-fastapi-ddd-skill",
+        "./skills/python-fastapi-ddd-presentation-skill",
+        "./skills/python-fastapi-ddd-testing-skill",
+        "./skills/python-fastapi-ddd-tooling-skill"
+      ]
+    }
+  ]
+}

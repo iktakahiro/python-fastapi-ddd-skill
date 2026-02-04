@@ -1,0 +1,5 @@
+interface:
+  display_name: "FastAPI DDD Testing"
+  short_description: "pytest patterns for DDD layers"
+  default_prompt: "Use $python-fastapi-ddd-testing-skill to add pytest unit tests for a DDD use case (mocking the repository interface) and for Domain Value Objects/Entities."
+

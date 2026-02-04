@@ -1,6 +1,10 @@
 ---
 name: python-fastapi-ddd-skill
 description: Guides FastAPI backend design using Domain-Driven Design (DDD) and Onion Architecture in Python. Use when structuring a FastAPI app (routes/handlers, Pydantic schemas, Depends-based DI), modeling domain Entities/Value Objects, defining repository interfaces, implementing SQLAlchemy infrastructure adapters, or writing use cases, based on the dddpy reference.
+license: Apache-2.0
+metadata:
+  author: Takahiro Ikeuchi
+  version: "1.0.0"
 ---
 
 # FastAPI + Python DDD & Onion Architecture Design Guide
