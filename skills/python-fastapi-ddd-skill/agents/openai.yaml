@@ -1,0 +1,4 @@
+interface:
+  display_name: "Python FastAPI DDD"
+  short_description: "Design FastAPI backends with DDD patterns"
+  default_prompt: "Use $python-fastapi-ddd-skill to design a FastAPI + SQLAlchemy service with DDD and Onion Architecture."
