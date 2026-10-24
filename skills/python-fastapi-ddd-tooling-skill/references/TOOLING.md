@@ -34,17 +34,17 @@ Replace `<pin>` with reviewed versions, then run `uv lock` and commit `uv.lock` 
 required-version = ">=0.13.4"
 package = false
 exclude-newer = "1 week"
-# Temporary security exception; remove once the cooldown has passed and relock.
-exclude-newer-package = { certifi = "2026-10-24T00:00:00Z" }
+# Exempt the CA bundle from the cooldown so trust-store fixes land immediately.
+exclude-newer-package = { certifi = false }
 constraint-dependencies = ["certifi>=2026.10.19"]
 
 [tool.pyrefly]
 project_includes = ["main.py", "yourapp"]
 ```
 
-`package = false` matches dddpy's application workflow; projects that install their own package should configure a build backend and omit that setting. The certifi constraint enforces the security floor when certifi is transitive without adding a runtime dependency. Advance the temporary exception deliberately if a newer security release is needed.
+`package = false` matches dddpy's application workflow; projects that install their own package should configure a build backend and omit that setting. The certifi constraint enforces the security floor when certifi is transitive without adding a runtime dependency. Exempting certifi from the cooldown avoids a fixed per-package cutoff date that would silently block later CA bundle fixes.
 
-For the 2026-10-20 emSign CA distrust, use uv `>=0.13.4` ([uv advisory](https://github.com/astral-sh/uv/security/advisories/GHSA-hq85-5cpj-mr62)), pip `>=26.2.2` wherever pip is used ([pip changelog](https://pip.pypa.io/en/stable/news/#v26-2-2)), and certifi `>=2026.10.19` wherever present ([certifi advisory](https://github.com/certifi/python-certifi/security/advisories/GHSA-6q48-6c7w-9gw2)). The certifi advisory lists 2026.10.18 as patched; this template uses the stricter 2026.10.19 floor also vendored by patched pip. Upgrading standalone certifi does not update pip's vendored bundle. Frozen sync preserves an existing lockfile, so review its resolved certifi version too.
+For the 2026-10-20 emSign CA distrust, use uv `>=0.13.4` ([uv advisory](https://github.com/astral-sh/uv/security/advisories/GHSA-hq85-5cpj-mr62)), pip `>=26.2.2` wherever pip is used ([pip changelog](https://pip.pypa.io/en/stable/news/#v26-2-2)), and certifi `>=2026.10.19` wherever present ([certifi advisory](https://github.com/certifi/python-certifi/security/advisories/GHSA-6q48-6c7w-9gw2)). certifi 2026.10.18 removed every emSign root, and 2026.10.19 restored the unaffected ones, so use 2026.10.19 or later. Upgrading standalone certifi does not update pip's vendored bundle. Frozen sync preserves an existing lockfile, so review its resolved certifi version too.
 
 ### Ruff config (example)
 
@@ -94,7 +94,7 @@ dev: install
 	uv run fastapi dev
 ```
 
-For optional mise support, pin Python, uv, and ruff in `.mise.toml` and have tasks mirror these targets. dddpy currently pins Python `3.14`, uv `0.13.5`, and ruff `0.17.0`. Keep uv's exact pin consistent with CI and the devcontainer. Its devcontainer copies `/uv` and `/uvx` from `ghcr.io/astral-sh/uv:0.13.5` into Debian bookworm, installs `ca-certificates` and `make`, and runs `make install` after creation. Use a reviewed patched uv image, optionally pinned by digest; avoid unpinned installer scripts. If seeding pip separately, verify pip meets the security floor above.
+For optional mise support, pin Python, uv, and ruff in `.mise.toml` and have tasks mirror these targets. Keep uv's exact pin consistent with CI and the devcontainer. Its devcontainer copies `/uv` and `/uvx` from `ghcr.io/astral-sh/uv:0.13.5` into Debian bookworm, installs `ca-certificates` and `make`, and runs `make install` after creation. Use a reviewed patched uv image, optionally pinned by digest; avoid unpinned installer scripts. If seeding pip separately, verify pip meets the security floor above.
 
 ## 3) GitHub Actions CI (`.github/workflows/test.yaml`)
 

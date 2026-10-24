@@ -43,7 +43,7 @@ Run `make install`, `make lint`, and `make test` on push/PR with a Python versio
 
 ## Dependency safety
 
-Commit `uv.lock`; regenerate it deliberately with `uv lock` when dependencies change. Require uv `>=0.13.4` in `[tool.uv]` and set `exclude-newer = "1 week"`. For the 2026-10-20 emSign CA distrust, also require pip `>=26.2.2` wherever pip is used and certifi `>=2026.10.19` wherever present. Security updates may need a temporary, package-specific cooldown exception; review and commit the resulting lockfile. Keep exact uv pins consistent across CI, `.mise.toml`, and devcontainer images. See the reference for advisory links and examples.
+Commit `uv.lock`; regenerate it deliberately with `uv lock` when dependencies change. Require uv `>=0.13.4` in `[tool.uv]` and set `exclude-newer = "1 week"`. For the 2026-10-20 emSign CA distrust, also require pip `>=26.2.2` wherever pip is used and certifi `>=2026.10.19` wherever present. Exempt certifi from the cooldown (`exclude-newer-package = { certifi = false }`) so CA bundle fixes are not delayed; review and commit the resulting lockfile. Keep exact uv pins consistent across CI, `.mise.toml`, and devcontainer images. See the reference for advisory links and examples.
 
 ## App bootstrap patterns
 
