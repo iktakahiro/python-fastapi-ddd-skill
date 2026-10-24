@@ -1,5 +1,5 @@
 interface:
   display_name: "FastAPI DDD Tooling"
-  short_description: "uv/ruff/mypy/CI for DDD apps"
-  default_prompt: "Use $python-fastapi-ddd-tooling-skill to add or refine uv + Makefile + ruff/mypy/pytest + GitHub Actions CI for a FastAPI DDD project."
+  short_description: "uv/ruff/Pyrefly/CI for DDD apps"
+  default_prompt: "Use $python-fastapi-ddd-tooling-skill to add or refine uv + Makefile + ruff/Pyrefly/pytest + GitHub Actions CI for a FastAPI DDD project."
 
