@@ -13,7 +13,7 @@ This skill is based on the reference implementation:
 | `python-fastapi-ddd-skill` | Architecture + core DDD patterns (Entities, Value Objects, Repositories, UseCases) |
 | `python-fastapi-ddd-presentation-skill` | FastAPI handlers, Pydantic schemas, error mapping |
 | `python-fastapi-ddd-testing-skill` | pytest patterns for Domain / UseCase layers |
-| `python-fastapi-ddd-tooling-skill` | uv / ruff / mypy / pytest / CI templates |
+| `python-fastapi-ddd-tooling-skill` | uv / ruff / Pyrefly / pytest / CI templates |
 
 ## Install
 
@@ -83,7 +83,7 @@ Once installed, mention the skill in your prompt:
 
 > Add pytest unit tests for Value Objects and UseCases (mocking repository interfaces).
 
-> Set up uv + Makefile + ruff/mypy/pytest + GitHub Actions CI for this project.
+> Set up uv + Makefile + ruff/Pyrefly/pytest + GitHub Actions CI for this project.
 
 ## License
 
