@@ -20,10 +20,31 @@ requires-python = ">=3.13"
 [project.optional-dependencies]
 dev = [
   "pytest>=<pin>",
-  "mypy>=<pin>",
+  "pyrefly>=<pin>",
   "ruff>=<pin>",
 ]
 ```
+
+### Lockfile and security policy
+
+Replace `<pin>` with reviewed versions, then run `uv lock` and commit `uv.lock` alongside `pyproject.toml`. Normal setup and CI use frozen sync; dependency updates explicitly regenerate and review the lockfile.
+
+```toml
+[tool.uv]
+required-version = ">=0.13.4"
+package = false
+exclude-newer = "1 week"
+# Temporary security exception; remove once the cooldown has passed and relock.
+exclude-newer-package = { certifi = "2026-10-24T00:00:00Z" }
+constraint-dependencies = ["certifi>=2026.10.19"]
+
+[tool.pyrefly]
+project_includes = ["main.py", "yourapp"]
+```
+
+`package = false` matches dddpy's application workflow; projects that install their own package should configure a build backend and omit that setting. The certifi constraint enforces the security floor when certifi is transitive without adding a runtime dependency. Advance the temporary exception deliberately if a newer security release is needed.
+
+For the 2026-10-20 emSign CA distrust, use uv `>=0.13.4` ([uv advisory](https://github.com/astral-sh/uv/security/advisories/GHSA-hq85-5cpj-mr62)), pip `>=26.2.2` wherever pip is used ([pip changelog](https://pip.pypa.io/en/stable/news/#v26-2-2)), and certifi `>=2026.10.19` wherever present ([certifi advisory](https://github.com/certifi/python-certifi/security/advisories/GHSA-6q48-6c7w-9gw2)). The certifi advisory lists 2026.10.18 as patched; this template uses the stricter 2026.10.19 floor also vendored by patched pip. Upgrading standalone certifi does not update pip's vendored bundle. Frozen sync preserves an existing lockfile, so review its resolved certifi version too.
 
 ### Ruff config (example)
 
@@ -37,63 +58,86 @@ quote-style = "single"
 docstring-code-format = true
 ```
 
-## 2) Makefile (uv + venv + common tasks)
+## 2) Makefile (uv + common tasks)
 
-`dddpy` uses `.venv` and runs tools from it.
+Frozen sync creates `.venv` and installs the locked dev extra; a separate `uv venv` or editable pip install is unnecessary.
 
 ```make
 VENV=.venv
-PYTEST=$(VENV)/bin/pytest
-MYPY=$(VENV)/bin/mypy --ignore-missing-imports
+PYTHON=$(VENV)/bin/python
+PYTEST=$(PYTHON) -m pytest
+PYREFLY=$(VENV)/bin/pyrefly
 RUFF=$(VENV)/bin/ruff
-PACKAGE=yourapp
+PYREFLY_FLAGS=--summarize-errors
+RUFF_FLAGS=
 
-venv:
-	uv venv .venv
+.PHONY: sync install lint typecheck test format dev
 
-install: venv
-	uv pip install -e ".[dev]"
+sync:
+	uv sync --frozen --extra dev
 
-test: install
-	$(MYPY) main.py ./${PACKAGE}/
+install: sync
+
+lint: install
+	$(RUFF) check . $(RUFF_FLAGS)
+
+typecheck: install
+	$(PYREFLY) check $(PYREFLY_FLAGS)
+
+test: typecheck
 	$(PYTEST) -vv
 
-format:
+format: install
 	$(RUFF) format
 
 dev: install
 	uv run fastapi dev
 ```
 
+For optional mise support, pin Python, uv, and ruff in `.mise.toml` and have tasks mirror these targets. dddpy currently pins Python `3.14`, uv `0.13.5`, and ruff `0.17.0`. Keep uv's exact pin consistent with CI and the devcontainer. Its devcontainer copies `/uv` and `/uvx` from `ghcr.io/astral-sh/uv:0.13.5` into Debian bookworm, installs `ca-certificates` and `make`, and runs `make install` after creation. Use a reviewed patched uv image, optionally pinned by digest; avoid unpinned installer scripts. If seeding pip separately, verify pip meets the security floor above.
+
 ## 3) GitHub Actions CI (`.github/workflows/test.yaml`)
 
-Run tests on push + PR. Install `uv` in CI and reuse Makefile targets.
+Run lint, type checking, and tests on push + PR. Replace each `<...-release-sha>` with the full 40-character commit SHA of a reviewed current release before use, and retain its version in a comment. Placeholders demonstrate SHA pinning without freezing stale action versions into the template. Update the exact uv pin deliberately across all environments.
 
 ```yaml
 name: A workflow to run tests
 
 on: [push, pull_request]
 
+permissions:
+  contents: read
+
+env:
+  UV_VERSION: "0.13.5"
+
 jobs:
   test:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.13, 3.14]
+        python-version: ["3.13", "3.14"]
+    env:
+      UV_PYTHON: ${{ matrix.python-version }}
     steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-python@v5
+      # Pin each current release to its full commit SHA; add a version comment.
+      - uses: actions/checkout@<checkout-release-sha>
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@<setup-python-release-sha>
         with:
           python-version: ${{ matrix.python-version }}
       - name: Install uv
-        run: |
-          curl -LsSf https://astral.sh/uv/install.sh | sh
+        uses: astral-sh/setup-uv@<setup-uv-release-sha>
+        with:
+          version: ${{ env.UV_VERSION }}
+          enable-cache: false
       - name: Install dependencies
-        run: |
-          make install
+        run: make install
+      - name: Run lint
+        run: make lint RUFF_FLAGS=--output-format=github
       - name: Run tests
-        run: |
-          make test
+        run: make test PYREFLY_FLAGS=--output-format=github
 ```
 
 ## 4) App bootstrap (`main.py`) and FastAPI lifespan
